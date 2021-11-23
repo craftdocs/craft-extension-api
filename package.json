@@ -1,0 +1,17 @@
+{
+  "name": "@craftdocs/craft-extension-api",
+  "version": "0.0.1",
+  "description": "Craft Extension API",
+  "types": "lib/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/craftdocs/craft-extension-api.git"
+  },
+  "author": "Craft Docs",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/craftdocs/craft-extension-api/issues"
+  },
+  "homepage": "https://github.com/craftdocs/craft-extension-api",
+  "dependencies": {}
+}
