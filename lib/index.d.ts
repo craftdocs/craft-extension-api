@@ -286,6 +286,38 @@ export interface CraftDataApi {
   getCurrentPage(): Promise<ApiResponse<CraftTextBlock>>;
 }
 
+export interface CraftHttpProxy {
+  fetch(request: CraftHttpRequest): Promise<ApiResponse<CraftHttpResponse>>;
+}
+
+export interface CraftHttpRequest {
+  url: string;
+  method?: string;
+  headers?: CraftHttpHeaders;
+  body?: CraftHttpRequestBody;
+}
+
+export type CraftHttpHeaders = { readonly [key: string]: string };
+
+export type CraftHttpRequestBody = CraftHttpTextRequestBody;
+
+export interface CraftHttpTextRequestBody {
+  type: "text";
+  text: string;
+}
+
+export interface CraftHttpResponse {
+  status: number;
+  headers: CraftHttpHeaders;
+  body?: CraftHttpResponseBody;
+}
+
+export interface CraftHttpResponseBody {
+  arrayBuffer(): Promise<ArrayBuffer>;
+  json(): Promise<any>;
+  text(): Promise<string>;
+}
+
 type MarkdownGenerator = (blocks: CraftBlock[]) => string;
 
 export type MarkdownFlavor = keyof MarkdownFactory;
@@ -315,10 +347,21 @@ export interface CraftEditorApi {
 export type ColorScheme  = "dark" | "light";
 export type DevicePlatform  = "iPhone" | "iPad" | "Mac" | "Web";
 
+export interface Environment {
+  readonly colorScheme: ColorScheme;
+  readonly platform: DevicePlatform;
+}
+
+export type EnvironmentListener = (currentEnv: Environment, prevEnv: Environment | undefined) => void;
+
 export interface EnvironmentApi {
-  colorScheme: ColorScheme;
-  platform: DevicePlatform;
-  onColorSchemeChange(callback: (scheme: ColorScheme) => void): void;
+  setListener(listener: EnvironmentListener | null): void;
+}
+
+export type DOMString = string;
+
+export interface ExperimentalApi {
+  renderSmallBlockPreview(previewId: string, blocks: CraftBlock[], isDarkMode: boolean): DOMString;
 }
 
 export interface CraftAPI {
@@ -328,7 +371,9 @@ export interface CraftAPI {
   editorApi: CraftEditorApi;
   markdown: MarkdownApi;
   location: LocationFactory;
-  environment: EnvironmentApi;
+  env: EnvironmentApi;
+  experimental: ExperimentalApi;
+  httpProxy: CraftHttpProxy;
 }
 
 export type BlockLocation = IndexLocation | AfterBlockLocation;
