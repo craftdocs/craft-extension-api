@@ -144,14 +144,20 @@ export interface CraftResourceBlock extends CraftBaseBlock {
 
 export interface CraftImageBlock extends CraftResourceBlock {
   type: "imageBlock";
+  previewImageStyle: ImageStyle;
+  filename?: string;
 }
 
 export interface CraftVideoBlock extends CraftResourceBlock {
   type: "videoBlock";
+  previewImageStyle: ImageStyle;
+  filename?: string;
 }
 
 export interface CraftFileBlock extends CraftResourceBlock {
   type: "fileBlock";
+  layoutStyle: LayoutStyle;
+  filename?: string;
 }
 
 export interface CraftDrawingBlock extends CraftResourceBlock {
@@ -160,7 +166,9 @@ export interface CraftDrawingBlock extends CraftResourceBlock {
 
 export interface CraftUrlBlock extends CraftBaseBlock {
   type: "urlBlock";
+  layoutStyle: LayoutStyle;
   url?: string;
+  originalUrl?: string;
   imageUrl?: string;
   title?: string;
   pageDescription?: string;
@@ -169,15 +177,53 @@ export interface CraftUrlBlock extends CraftBaseBlock {
 export interface CraftTableBlock extends CraftBaseBlock {
   type: "tableBlock";
   rows: CraftTableRow[];
+  columns?: CraftTableColumn[];
+  tableStyle?: CraftTableStyle;
 }
 
 export interface CraftTableRow {
   cells: CraftTableCell[];
 }
 
+export interface CraftTableColumn {
+  style?: CraftTableColumnStyle;
+}
+
+export interface CraftTableColumnStyle {
+  width?: string;
+}
+
 export interface CraftTableCell {
-  fillColor?: CraftTableCellFillColor;
   block?: CraftBlock;
+  style?: CraftTableCellStyle;
+}
+
+export interface CraftTableRowInsert {
+  cells: CraftTableCellInsert[];
+}
+
+export interface CraftTableCellInsert {
+  block?: CraftBlockInsert;
+  style?: CraftTableCellStyle;
+}
+
+export interface CraftTableCellStyle {
+  fillColor?: CraftTableCellFillColor;
+  defaultBlockStyle?: CraftTableBlockStyle;
+}
+
+export interface CraftTableBlockStyle {
+  isBold?: boolean;
+  isItalic?: boolean;
+  isStrikethrough?: boolean;
+  isCode?: boolean;
+  fontStyle?: FontStyle;
+  alignmentStyle?: AlignmentStyle;
+  textColor?: Color;
+}
+
+export interface CraftTableStyle {
+  alternatingRowColor?: CraftTableCellFillColor;
 }
 
 export interface CraftTextRun {
@@ -232,17 +278,29 @@ export type CraftCodeBlockInsert = CraftCodeBlockConfig & {
   type: "codeBlock";
 };
 
-export type CraftImageBlockInsert = Omit<CraftImageBlock, keyof HasId>;
+export type CraftImageBlockInsert = CraftImageBlockConfig & {
+  type: "imageBlock"
+};
 
-export type CraftVideoBlockInsert = Omit<CraftVideoBlock, keyof HasId>;
+export type CraftVideoBlockInsert = CraftVideoBlockConfig & {
+  type: "videoBlock"
+};
 
-export type CraftFileBlockInsert = Omit<CraftFileBlock, keyof HasId>;
+export type CraftFileBlockInsert = CraftFileBlockConfig & {
+  type: "fileBlock"
+};
 
-export type CraftDrawingBlockInsert = Omit<CraftDrawingBlock, keyof HasId>;
+export type CraftDrawingBlockInsert = CraftDrawingBlockConfig & {
+  type: "drawingBlock"
+};
 
-export type CraftUrlBlockInsert = Omit<CraftUrlBlock, keyof HasId>;
+export type CraftUrlBlockInsert = CraftUrlBlockConfig & {
+  type: "urlBlock"
+};
 
-export type CraftTableBlockInsert = Omit<CraftTableBlock, keyof HasId>;
+export type CraftTableBlockInsert = CraftTableBlockConfig & {
+  type: "tableBlock"
+};
 
 // Block type used for update
 
@@ -264,10 +322,54 @@ export type CraftCodeBlockConfig = HasBasePropertiesInsert & {
   language?: CodeLanguage;
 };
 
+export type CraftUrlBlockConfig = HasBasePropertiesInsert & {
+  url?: string;
+  layoutStyle?: LayoutStyle;
+  originalUrl?: string;
+  imageUrl?: string;
+  title?: string;
+  pageDescription?: string;
+};
+
+export interface CraftResourceBlockConfig extends HasBasePropertiesInsert {
+  url?: string;
+  previewUrl?: string;
+}
+
+export interface CraftImageBlockConfig extends CraftResourceBlockConfig {
+  previewImageStyle?: ImageStyle;
+  filename?: string;
+}
+
+export interface CraftVideoBlockConfig extends CraftResourceBlockConfig {
+  previewImageStyle?: ImageStyle;
+  filename?: string;
+}
+
+export interface CraftFileBlockConfig extends CraftResourceBlockConfig {
+  layoutStyle?: LayoutStyle;
+  filename?: string;
+}
+
+export interface CraftDrawingBlockConfig extends CraftResourceBlockConfig {
+}
+
+export interface CraftTableBlockConfig extends HasBasePropertiesInsert {
+  rows: CraftTableRowInsert[];
+  columns?: CraftTableColumn[];
+  tableStyle?: CraftTableStyle;
+}
+
 export interface BlockFactory {
   textBlock(block: CraftTextBlockConfig): CraftTextBlockInsert;
   codeBlock(block: CraftCodeBlockConfig): CraftCodeBlockInsert;
   horizontalLineBlock(block: CraftHorizontalLineBlockConfig): CraftHorizontalLineBlockInsert;
+  urlBlock(block: CraftUrlBlockConfig): CraftUrlBlockInsert;
+  tableBlock(block: CraftTableBlockConfig): CraftTableBlockInsert;
+  imageBlock(block: CraftImageBlockConfig): CraftImageBlockInsert;
+  videoBlock(block: CraftVideoBlockConfig): CraftVideoBlockInsert;
+  fileBlock(block: CraftFileBlockConfig): CraftFileBlockInsert;
+  drawingBlock(block: CraftDrawingBlockConfig): CraftDrawingBlockInsert;
   defaultListStyle(type: ListStyleType): ListStyle;
 }
 
@@ -436,6 +538,11 @@ export interface ToggleListStyle {
   type: "toggle";
 }
 
+export interface ImageStyle {
+  sizeStyle: ImageSizeStyle;
+  fillStyle: ImageFillStyle
+}
+
 export type TextStyle =
   | "title"
   | "subtitle"
@@ -447,9 +554,10 @@ export type TextStyle =
   | "page";
 export type FontStyle = "system-rounded" | "system-serif" | "system" | "system-mono";
 export type AlignmentStyle = "left" | "right" | "center";
-export type ImageFillStyle = "scaleAspectFit" | "scaleAspectFill";
-export type ImageSizeStyle = "auto" | "fullWidth";
+export type ImageFillStyle = "auto" | "fit" | "fill";
+export type ImageSizeStyle = "auto" | "large";
 export type LineStyle = "strong" | "regular" | "light" | "extraLight";
+export type LayoutStyle = "regular" | "small" | "card";
 export type CodeLanguage =
   | "Bash"
   | "ada"
